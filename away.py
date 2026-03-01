@@ -24,9 +24,8 @@ from telethon.tl.types import (
 )
 from .. import loader, utils
 
-
 @loader.tds
-class Away(loader.Module):
+class AwayMod(loader.Module):
     strings = {
         "name": "Away",
         "on": "🟢 <b>Away enabled</b>",
@@ -75,7 +74,6 @@ class Away(loader.Module):
         self._client = client
         self._me_id = (await client.get_me()).id
 
-    @loader.command(name="away")
     async def awaycmd(self, message):
         self.away = not self.away
         self._replied.clear()
@@ -110,8 +108,7 @@ class Away(loader.Module):
         if key in self._replied:
             return
 
-        last = await self._last_seen()
-        text = self.config["message"].replace("%s", last)
+        text = self.config["message"].replace("%s", await self._last_seen())
 
         if message.is_private and self.config["reply_dm"]:
             await message.reply(text)
