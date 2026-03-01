@@ -24,10 +24,9 @@ from telethon.tl.types import (
 )
 from .. import loader, utils
 
-@loader.tds
-class AwayAutoReplyMod(loader.Module):
-    """Auto-reply when away mode is enabled"""
 
+@loader.tds
+class Away(loader.Module):
     strings = {
         "name": "Away",
         "on": "🟢 <b>Away enabled</b>",
@@ -62,21 +61,22 @@ class AwayAutoReplyMod(loader.Module):
             ),
             loader.ConfigValue(
                 "message",
-                "I'm currently offline. Last seen: {lastseen}.",
-                "Auto-reply message",
+                "I'm offline right now. Last seen: %s.",
+                "Auto-reply message (%s = last seen)",
                 validator=loader.validators.String(),
             ),
         )
 
         self.away = False
         self._replied = set()
+        self._me_id = None
 
     async def client_ready(self, client, db):
         self._client = client
+        self._me_id = (await client.get_me()).id
 
-    @loader.command()
-    async def away(self, message):
-        """Toggle away mode"""
+    @loader.command(name="away")
+    async def awaycmd(self, message):
         self.away = not self.away
         self._replied.clear()
 
@@ -107,19 +107,19 @@ class AwayAutoReplyMod(loader.Module):
             return
 
         key = (message.chat_id, message.sender_id)
-
         if key in self._replied:
             return
 
+        last = await self._last_seen()
+        text = self.config["message"].replace("%s", last)
+
         if message.is_private and self.config["reply_dm"]:
-            last = await self._last_seen()
-            await message.reply(self.config["message"].replace("{lastseen}", last))
+            await message.reply(text)
             self._replied.add(key)
             return
 
         if self.config["reply_reply"] and message.reply_to:
             reply = await message.get_reply_message()
-            if reply and reply.sender_id == (await self._client.get_me()).id:
-                last = await self._last_seen()
-                await message.reply(self.config["message"].replace("{lastseen}", last))
+            if reply and reply.sender_id == self._me_id:
+                await message.reply(text)
                 self._replied.add(key)
