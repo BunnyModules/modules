@@ -38,11 +38,11 @@ class ImageQuoterMod(loader.Module):
         "result": "📸 Ссылка на изображение:\n{}"
     }
 
-    async def qi_cmd(self, message):
+    async def qicmd(self, message):
         """
-        .qi
         Reply to an image to upload it and get a preview link.
         """
+
         reply = await message.get_reply_message()
         if not reply:
             await utils.answer(message, self.strings["no_reply"])
@@ -64,16 +64,16 @@ class ImageQuoterMod(loader.Module):
 
         await utils.answer(message, self.strings["result"].format(catbox_url))
 
-        async def upload_to_catbox(self, file_bytes: bytes) -> str:
-            url = "https://catbox.moe/user/api.php"
+    async def upload_to_catbox(self, file_bytes: bytes) -> str:
+        url = "https://catbox.moe/user/api.php"
 
-            form = aiohttp.FormData()
-            form.add_field("reqtype", "fileupload")
-            form.add_field("fileToUpload", file_bytes, filename="image.png", content_type="image/png")
+        form = aiohttp.FormData()
+        form.add_field("reqtype", "fileupload")
+        form.add_field("fileToUpload", file_bytes, filename="image.png", content_type="image/png")
 
-            async with aiohttp.ClientSession() as session:
-                async with session.post(url, data=form) as resp:
-                    if resp.status != 200:
-                        raise Exception(f"HTTP {resp.status}")
-                    text = await resp.text()
-                    return text.strip()
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, data=form) as resp:
+                if resp.status != 200:
+                    raise Exception(f"HTTP {resp.status}")
+                text = await resp.text()
+                return text.strip()
