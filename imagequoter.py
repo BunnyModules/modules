@@ -12,7 +12,7 @@
 # 🌐 https://www.gnu.org/licenses/agpl-3.0.html
 # ---------------------------------------------------------------------------------
 # Author: @BunnyModules
-# Commands: away
+# Commands: qi
 # scope: hikka_only
 # meta developer: @BunnyModules
 # ---------------------------------------------------------------------------------
